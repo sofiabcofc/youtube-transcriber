@@ -27,17 +27,12 @@ def extract_audio():
         audio_stream.download(filename=filename)
 
         with open(filename, 'rb') as f:
-            # Upload file to file.io (free anonymous upload service)
-            res = requests.post('https://file.io', files={'file': f})
-
+            res = requests.put(f'https://transfer.sh/{filename}', data=f)
         os.remove(filename)
 
         if res.status_code == 200:
-            file_url = res.json().get('link')
-            if file_url:
-                return jsonify({'audio_url': file_url})
-            else:
-                return jsonify({'error': 'Upload failed: no link returned'}), 500
+            file_url = res.text.strip()
+            return jsonify({'audio_url': file_url})
         else:
             return jsonify({'error': 'Upload failed'}), 500
 
