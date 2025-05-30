@@ -27,13 +27,17 @@ def extract_audio():
         audio_stream.download(filename=filename)
 
         with open(filename, 'rb') as f:
-            # Use a free anonymous upload service like tmpfiles.org
-            res = requests.post('https://tmpfiles.org/api/v1/upload', files={'file': f})
+            # Upload file to file.io (free anonymous upload service)
+            res = requests.post('https://file.io', files={'file': f})
+
         os.remove(filename)
 
         if res.status_code == 200:
-            file_url = res.json().get('data', {}).get('url')
-            return jsonify({'audio_url': file_url})
+            file_url = res.json().get('link')
+            if file_url:
+                return jsonify({'audio_url': file_url})
+            else:
+                return jsonify({'error': 'Upload failed: no link returned'}), 500
         else:
             return jsonify({'error': 'Upload failed'}), 500
 
