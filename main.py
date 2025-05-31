@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from pytube import YouTube
 import os
 import requests
+import time
 
 app = Flask(__name__)
 
@@ -27,8 +28,13 @@ def extract_audio():
         audio_stream.download(filename=filename)
 
         with open(filename, 'rb') as f:
+            # Upload to transfer.sh
             res = requests.put(f'https://transfer.sh/{filename}', data=f)
+
         os.remove(filename)
+
+        # Pause 10 seconds to avoid rate limits
+        time.sleep(10)
 
         if res.status_code == 200:
             file_url = res.text.strip()
