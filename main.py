@@ -28,16 +28,14 @@ def extract_audio():
         audio_stream.download(filename=filename)
 
         with open(filename, 'rb') as f:
-            # Upload to file.io (expires after first download or after 1 day)
-            res = requests.post('https://file.io/', files={'file': f})
+            files = {'file': (filename, f)}
+            res = requests.post('https://store1.gofile.io/uploadFile', files=files)
 
         os.remove(filename)
-
-        # Pause to avoid rate limits
-        time.sleep(10)
+        time.sleep(5)
 
         if res.status_code == 200:
-            file_url = res.json().get('link')
+            file_url = res.json()['data']['downloadPage']
             return jsonify({'audio_url': file_url})
         else:
             return jsonify({'error': 'Upload failed'}), 500
