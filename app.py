@@ -1,28 +1,31 @@
+import os
 from flask import Flask, request, jsonify
 from pytube import YouTube
 
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return "API is running!"
+
 @app.route('/get-audio-url', methods=['GET'])
 def get_audio_url():
-    print("DEBUG: /get-audio-url route called")
     video_url = request.args.get('url')
     if not video_url:
         return jsonify({"error": "Missing 'url' parameter"}), 400
     try:
         yt = YouTube(video_url)
         audio_stream = yt.streams.filter(only_audio=True).first()
-        print(f"DEBUG: Found audio stream: {audio_stream}")
         return jsonify({
             "title": yt.title,
             "audio_url": audio_stream.url
         })
     except Exception as e:
-        print(f"ERROR: Exception occurred: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))  # Use Render's PORT or default 5000
+    app.run(host='0.0.0.0', port=port)
 
 @app.route('/')
 def home():
