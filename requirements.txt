@@ -1,4 +1,8 @@
 flask
-pytube
 requests
+pytube
 gunicorn
+python-dotenv
+youtube-transcript-api
+openai
+tiktoken
