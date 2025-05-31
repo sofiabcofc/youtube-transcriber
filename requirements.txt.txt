@@ -1,4 +1,0 @@
-flask
-pytube
-requests
-gunicorn
