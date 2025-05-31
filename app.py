@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 @app.route('/get-audio-url', methods=['GET'])
 def get_audio_url():
+    print("DEBUG: /get-audio-url route called")
     video_url = request.args.get('url')
     if not video_url:
         return jsonify({"error": "Missing 'url' parameter"}), 400
