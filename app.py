@@ -20,3 +20,7 @@ def get_audio_url():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+@app.route('/')
+def home():
+    return "API is running!"
