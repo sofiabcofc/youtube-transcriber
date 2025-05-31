@@ -13,6 +13,7 @@ def index():
 @app.route('/extract_audio', methods=['POST'])
 def extract_audio():
     try:
+        import time
         data = request.get_json()
         print("Received data:", data)
 
@@ -21,9 +22,19 @@ def extract_audio():
             print("Missing video_id")
             return jsonify({'error': 'Missing video_id'}), 400
 
-        print(f"Downloading audio for video_id: {video_id}")
-        yt = YouTube(f'https://www.youtube.com/watch?v={video_id}')
-        audio_stream = yt.streams.filter(only_audio=True).first()
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                print(f"Attempt {attempt + 1} to fetch YouTube audio")
+                yt = YouTube(f'https://www.youtube.com/watch?v={video_id}')
+                audio_stream = yt.streams.filter(only_audio=True).first()
+                break  # Exit loop if successful
+            except Exception as e:
+                if "429" in str(e) and attempt < max_retries - 1:
+                    print("Hit 429 rate limit. Waiting 10 seconds before retry...")
+                    time.sleep(10)
+                else:
+                    raise e
 
         if not audio_stream:
             print("No audio stream found")
@@ -33,8 +44,7 @@ def extract_audio():
         audio_stream.download(filename=filename)
         print("Downloaded audio to", filename)
 
-        import time
-        time.sleep(10)  # To respect GoFile rate limits
+        time.sleep(10)  # Be nice to the upload server
 
         with open(filename, 'rb') as f:
             files = {'file': f}
