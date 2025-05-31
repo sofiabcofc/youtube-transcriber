@@ -28,16 +28,16 @@ def extract_audio():
         audio_stream.download(filename=filename)
 
         with open(filename, 'rb') as f:
-            # Upload to transfer.sh
-            res = requests.put(f'https://transfer.sh/{filename}', data=f)
+            # Upload to file.io (expires after first download or after 1 day)
+            res = requests.post('https://file.io/', files={'file': f})
 
         os.remove(filename)
 
-        # Pause 10 seconds to avoid rate limits
+        # Pause to avoid rate limits
         time.sleep(10)
 
         if res.status_code == 200:
-            file_url = res.text.strip()
+            file_url = res.json().get('link')
             return jsonify({'audio_url': file_url})
         else:
             return jsonify({'error': 'Upload failed'}), 500
