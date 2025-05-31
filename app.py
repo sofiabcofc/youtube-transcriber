@@ -12,11 +12,13 @@ def get_audio_url():
     try:
         yt = YouTube(video_url)
         audio_stream = yt.streams.filter(only_audio=True).first()
+        print(f"DEBUG: Found audio stream: {audio_stream}")
         return jsonify({
             "title": yt.title,
             "audio_url": audio_stream.url
         })
     except Exception as e:
+        print(f"ERROR: Exception occurred: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
