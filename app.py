@@ -23,6 +23,22 @@ def get_audio_url():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/get-audio-url', methods=['POST'])
+def get_audio_url():
+    data = request.get_json()
+    video_url = data.get('url') if data else None
+    if not video_url:
+        return jsonify({"error": "Missing 'url' in JSON body"}), 400
+    try:
+        yt = YouTube(video_url)
+        audio_stream = yt.streams.filter(only_audio=True).first()
+        return jsonify({
+            "title": yt.title,
+            "audio_url": audio_stream.url
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # Use Render's PORT or default 5000
     app.run(host='0.0.0.0', port=port)
